@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30011.22
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mb-back", "mb-back\mb-back.csproj", "{DBA2E3FF-6AA9-4A08-B6B5-E93AB55FDD16}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "mb-back", "mb-back\mb-back.csproj", "{DBA2E3FF-6AA9-4A08-B6B5-E93AB55FDD16}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

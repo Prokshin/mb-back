@@ -1,6 +1,8 @@
-﻿using mb_back.Models;
+﻿using Dapper;
+using mb_back.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using Npgsql;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -18,6 +20,17 @@ namespace mb_back.Controllers
             new User("a@a.a", "12345"),
             new User("b@b.b", "12345")
         };
+
+        private List<User> GetAllusers()
+        {
+            using (var connection = new NpgsqlConnection($"server=localhost;database=mb;userid=postgres;password=password;Pooling=false"))
+            {
+                connection.Open();
+
+                var result = connection.Query<User>("SELECT Id, email, password FROM Users").ToList();
+                return result;
+            }
+        }
 
         [HttpPost("api/auth")]
         public IActionResult Token([FromBody] User user)
@@ -42,19 +55,20 @@ namespace mb_back.Controllers
             var response = new
             {
                 access_token = encodedJwt,
-                username = identity.Name
+                email = identity.Name,
             };
 
             return Ok(response);
         }
         private ClaimsIdentity GetIdentity(string email, string password)
         {
-            User user = users.FirstOrDefault(x => x.Email == email && x.Password == password);
+            User user = GetAllusers().FirstOrDefault(x => x.Email == email && x.Password == password);
             if (user != null)
             {
                 var claims = new List<Claim>
                 {
-                    new Claim(ClaimsIdentity.DefaultNameClaimType, user.Email),
+                    //new Claim(ClaimsIdentity.DefaultNameClaimType, user.Email),
+                    new Claim(ClaimsIdentity.DefaultNameClaimType, user.Id.ToString()),
                 };
                 ClaimsIdentity claimsIdentity =
                 new ClaimsIdentity(claims, "Token", ClaimsIdentity.DefaultNameClaimType,
@@ -66,5 +80,7 @@ namespace mb_back.Controllers
             Console.WriteLine("не найден юзер");
             return null;
         }
+
+      
     }
 }
