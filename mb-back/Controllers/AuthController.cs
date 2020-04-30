@@ -10,6 +10,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using mb_back.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace mb_back.Controllers
 {
@@ -51,6 +52,12 @@ namespace mb_back.Controllers
             };
 
             return Ok(response);
+        }
+        [Authorize]
+        [HttpGet("api/auth/checktoken")]
+        public IActionResult CheckToken()
+        {
+            return Ok("Token is Valid");
         }
       
     }
