@@ -10,9 +10,9 @@ namespace mb_back.BusinessLogic
 {
     public class UserRequestHandler
     {
-        private readonly IUserServices _userServices;
+        private readonly IUserService _userServices;
         
-        public UserRequestHandler(IUserServices userServices)
+        public UserRequestHandler(IUserService userServices)
         {
             _userServices = userServices;
         }

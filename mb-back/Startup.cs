@@ -58,7 +58,8 @@ namespace mb_back
                     });
             services.AddControllers();
             services.AddScoped<UserRequestHandler>();
-            services.AddScoped<IUserServices, UserServices>();
+            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<AuthService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

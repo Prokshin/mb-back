@@ -10,6 +10,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using mb_back.Services;
 using mb_back.BusinessLogic;
+using Microsoft.AspNetCore.Authorization;
+using mb_back.ServicesInterface;
 
 namespace mb_back.Controllers
 {
@@ -17,17 +19,30 @@ namespace mb_back.Controllers
     public class UserController : Microsoft.AspNetCore.Mvc.ControllerBase
     {
 
-        private readonly UserRequestHandler _userRequestHandler;
+        private readonly IUserService _userService;
 
-        public UserController(UserRequestHandler userRequestHandler)
+        public UserController(IUserService userService)
         {
-            _userRequestHandler = userRequestHandler;
+            _userService = userService;
+
         }
 
+        [Authorize]
         [HttpGet("current")]
         public Task<User> GetUser()
         {
-            return _userRequestHandler.Handle(int.Parse(User.Identity.Name));
+            Console.WriteLine();
+            return _userService.GetById(int.Parse(User.FindFirst("userId").Value));
+        }
+        [HttpPost]
+        public IActionResult CreateUser([FromBody] User newUser)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+             _userService.CreateUser(newUser);
+            return StatusCode(201);
         }
     }
  

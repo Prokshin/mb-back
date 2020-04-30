@@ -6,8 +6,11 @@ using System.Threading.Tasks;
 
 namespace mb_back.ServicesInterface
 {
-    public interface IUserServices
+    public interface IUserService
     {
         Task<User> GetById(int id);
+        Task<List<User>> GetAllUsers();
+
+        Task<User> CreateUser(User newUser);
     }
 }
