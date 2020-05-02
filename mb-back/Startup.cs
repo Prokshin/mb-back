@@ -60,6 +60,7 @@ namespace mb_back
             services.AddScoped<UserRequestHandler>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<AuthService>();
+            services.AddScoped<IAccountService, AccountService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -69,7 +70,8 @@ namespace mb_back
             {
                 app.UseDeveloperExceptionPage();
             }
-            
+
+            app.UseHttpsRedirection();
             app.UseRouting();
 
             app.UseCors(builder => builder.AllowAnyOrigin()
