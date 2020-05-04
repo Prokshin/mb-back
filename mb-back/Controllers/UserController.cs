@@ -44,6 +44,18 @@ namespace mb_back.Controllers
              _userService.CreateUser(newUser);
             return StatusCode(201);
         }
-    }
+        [HttpPut]
+        public IActionResult UpdateUser([FromBody] User updatedUser)
+        {
+            if(!ModelState.IsValid )
+            {
+                return BadRequest();
+            }
+            updatedUser.Id = int.Parse(User.FindFirst("userId").Value);
+            var res = _userService.UpdateUser(updatedUser);
+            return Ok();
+        }
+    }   
+
  
 }

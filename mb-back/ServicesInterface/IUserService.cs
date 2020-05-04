@@ -10,7 +10,8 @@ namespace mb_back.ServicesInterface
     {
         Task<User> GetById(int id);
         Task<List<User>> GetAllUsers();
-
         Task<User> CreateUser(User newUser);
+        Task<User> UpdateUser(User updatedUser);
+        Task<int> GetIdByEmail(string email);
     }
 }

@@ -8,7 +8,9 @@ namespace mb_back.Models
     public class Account
     {
         public long Id { get; set; }
-        public double Balance { get; set; }
+        public decimal Balance { get; set; }
+        public List<Operation> Operations { get; set; }
+
         public Account() { }
 
         internal List<Account> ToList()
