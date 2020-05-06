@@ -18,42 +18,71 @@ namespace mb_back.Controllers
     [Route("api/users")]
     public class UserController : Microsoft.AspNetCore.Mvc.ControllerBase
     {
+        private readonly UserRequestHandler _userRequestHandler;
 
-        private readonly IUserService _userService;
-
-        public UserController(IUserService userService)
+        public UserController( UserRequestHandler userRequestHandler )
         {
-            _userService = userService;
-
+            _userRequestHandler = userRequestHandler;
         }
 
         [Authorize]
         [HttpGet("current")]
-        public Task<User> GetUser()
+        public async Task<IActionResult> GetUser()
         {
-            Console.WriteLine();
-            return _userService.GetById(int.Parse(User.FindFirst("userId").Value));
+            try
+            {
+                var user = await _userRequestHandler.GetUserById(int.Parse(User.FindFirst("userId").Value));
+                return Ok(user);
+            }
+            catch(Exception e)
+            {
+                return NotFound(e.Message);
+            }
         }
+
         [HttpPost]
-        public IActionResult CreateUser([FromBody] User newUser)
+        public async Task<IActionResult> CreateUser([FromBody] User newUser)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                return BadRequest();
+                if (!ModelState.IsValid) throw new Exception("Invalid data");
+                await _userRequestHandler.CreateUser(newUser);
+                return StatusCode(201);
             }
-             _userService.CreateUser(newUser);
-            return StatusCode(201);
+            catch(Exception e)
+            {
+                return NotFound(e.Message);
+            }
+           
         }
+        [Authorize]
         [HttpPut]
-        public IActionResult UpdateUser([FromBody] User updatedUser)
+        public async Task<IActionResult> UpdateUser([FromBody] User updatedUser)
         {
-            if(!ModelState.IsValid )
+            try
             {
-                return BadRequest();
+                if (!ModelState.IsValid) throw new Exception("Invalid data");
+                await _userRequestHandler.UpdateUser(updatedUser, int.Parse(User.FindFirst("userId").Value));
+                return Ok();
             }
-            updatedUser.Id = int.Parse(User.FindFirst("userId").Value);
-            var res = _userService.UpdateUser(updatedUser);
-            return Ok();
+            catch(Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+        [Authorize]
+        [HttpDelete("current")]
+        public async Task<IActionResult> DeleteUser()
+        {
+            try
+            {
+                await _userRequestHandler.DeleteUser(int.Parse(User.FindFirst("userId").Value));
+                return NoContent();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
         }
     }   
 

@@ -18,16 +18,16 @@ namespace mb_back.Services
         {
             using (var connection = new NpgsqlConnection(ConnectionString))
             {
-                return await connection.QuerySingleAsync<User>(
-                    "SELECT * FROM Users WHERE Id = @id", new {id });
+                var user =  await connection.QuerySingleAsync<User>(
+                    "SELECT email, name, img FROM Users WHERE Id=@id",
+                    new { id });
+                return user;
             }
         }
-
         public async Task<List<User>> GetAllUsers()
         {
             using (var connection = new NpgsqlConnection(ConnectionString))
             {
- 
                 var result = await connection.QueryAsync<User>("SELECT Id, email, password FROM Users");
                 Console.WriteLine(result.ToList()[1].Id);
                 return result.ToList();
@@ -38,9 +38,13 @@ namespace mb_back.Services
             using (var connection = new NpgsqlConnection(ConnectionString))
             {
                 var hashedPassword = BCrypt.Net.BCrypt.HashPassword(newUser.Password);
-    
                 newUser.Password = hashedPassword;
-                var res = await connection.QueryAsync<User>("INSERT INTO Users (Name, Email, Password) VALUES ( @name, @email, @password)", new { newUser.Name, newUser.Email, newUser.Password });
+                await connection.QueryAsync<User>("INSERT INTO Users (Name, Email, Password) VALUES ( @name, @email, @password)", 
+                    new { 
+                        newUser.Name,
+                        newUser.Email, 
+                        newUser.Password 
+                    });
 
                 return newUser;
             }
@@ -50,7 +54,13 @@ namespace mb_back.Services
             using (var connection = new NpgsqlConnection(ConnectionString))
             {
 
-                await connection.QueryAsync<User>("UPDATE Users SET  name = @name, email = @email, img = @img WHERE id =@id ", new { updatedUser.Name, updatedUser.Email, updatedUser.Img, updatedUser.Id });
+                await connection.QueryAsync("UPDATE Users SET  name = @name, email=@email, img=@img WHERE id=@id ", 
+                    new { 
+                        updatedUser.Name, 
+                        updatedUser.Email, 
+                        updatedUser.Img, 
+                        updatedUser.Id 
+                    });
                 return updatedUser;
             }
         }
@@ -60,8 +70,18 @@ namespace mb_back.Services
             using (var connection = new NpgsqlConnection(ConnectionString))
             {
 
-                var res = await connection.QueryFirstOrDefaultAsync<int>("SELECT id FROM Users WHERE  email = @email", new {email});
+                var res = await connection.QueryFirstOrDefaultAsync<int>("SELECT id FROM Users WHERE email=@email", 
+                    new {email});
                 return res;
+            }
+        }
+        public async Task<int> DeleteUser(int Id)
+        {
+            using (var connection = new NpgsqlConnection(ConnectionString))
+            {  
+                await connection.QueryAsync("UPDATE Users SET is_deleted=true WHERE id=@Id ", 
+                    new { Id });
+                return Id;
             }
         }
     }

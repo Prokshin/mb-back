@@ -13,5 +13,6 @@ namespace mb_back.ServicesInterface
         Task<User> CreateUser(User newUser);
         Task<User> UpdateUser(User updatedUser);
         Task<int> GetIdByEmail(string email);
+        Task<int> DeleteUser(int userId);
     }
 }

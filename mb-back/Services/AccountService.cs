@@ -20,9 +20,7 @@ namespace mb_back.Services
                 var res =  await connection.QueryMultipleAsync(
                     "SELECT * FROM Accounts WHERE user_id = @id", new { id });
                 var accounts = res.Read<Account>().ToList();
-                Console.WriteLine("\n----------------- \n");
-                Console.Write(accounts.Count());
-                Console.WriteLine("\n----------------- \n");
+
                 return accounts;
             }
         }
@@ -80,11 +78,10 @@ namespace mb_back.Services
         {
 
             newOperation.Date = DateTime.Now;
+            Requisite newRequisite = newOperation.Requisite;
             using (var connection = new NpgsqlConnection(ConnectionString))
             { 
-                    int requisiteId = await connection.QueryFirstOrDefaultAsync<int>("INSERT INTO requisites (payment_name, target_name, target_email) values ('gg', 'gg', 'gg') Returning (id)");
-
-
+                int requisiteId = await connection.QueryFirstOrDefaultAsync<int>("INSERT INTO requisites (payment_name, target_name, target_email) values (@payment_name, @target_name, @target_email) Returning (id)", new { newRequisite.Payment_name, newRequisite.Target_name, newRequisite.Target_email });
                 await connection.QueryAsync("INSERT INTO OPERATIONS (amount, date, account_in_id ,account_out_id, operation_type, requisite_id ) values (@amount, @date, @account_in_id, @account_out_id, 'Платёж', @requisiteId)", new { newOperation.Amount, newOperation.Date, newOperation.Account_in_id, newOperation.Account_out_id, requisiteId });
                 await this.ChangeBalance(newOperation.Account_in_id, newOperation.Amount);
                 await this.ChangeBalance(newOperation.Account_in_id, -newOperation.Amount);
@@ -113,6 +110,53 @@ namespace mb_back.Services
                 var res = await connection.QueryMultipleAsync("SELECT * FROM Operations WHERE account_out_id = @accountId OR account_in_id = @accountId", new {  accountId });
                 var operations = res.Read<Operation>().ToList();
                 return operations;
+            }
+        }
+
+        public async Task<long> CloseAccount(long accountId, int userId)
+        {
+            using (var connection = new NpgsqlConnection(ConnectionString))
+            {
+                await connection.QueryAsync("UPDATE Accounts SET is_close=true WHERE id = @accountId", new {accountId });
+                return accountId;
+            }
+        }
+
+        public async Task<int> EqualREquisites(Requisite requisite)
+        {
+            using (var connection = new NpgsqlConnection(ConnectionString))
+            {
+                try
+                {
+                    int id = await connection.QueryFirstOrDefaultAsync<int>("SELECT Id FROM Requisites WHERE payment_name=@payment_name AND target_email=@target_email AND target_name=@target_name", new { requisite.Payment_name, requisite.Target_email, requisite.Target_name });
+                    return id;
+                }
+                catch
+                {
+                    return -1;
+                }
+               
+            }
+        }
+
+        public async Task<List<Requisite>> GetAllRequisitesByUserId(int id)
+        {
+            using (var connection = new NpgsqlConnection(ConnectionString))
+            {
+                    var res = await connection.QueryMultipleAsync(
+                    "SELECT * FROM Requisites WHERE user_id = @id", new { id });
+                    var requisites = res.Read<Requisite>().ToList();
+                    return requisites;
+            }
+        }
+
+        public async Task<Requisite> GetRequisite(int id)
+        {
+            using (var connection = new NpgsqlConnection(ConnectionString))
+            {
+                var res = await connection.QueryMultipleAsync("SELECT * FROM Requisite WHERE id=@id ", new { id });
+                var requisite = res.ReadSingle<Requisite>();
+                return requisite;
             }
         }
     }

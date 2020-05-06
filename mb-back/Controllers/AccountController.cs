@@ -104,11 +104,30 @@ namespace mb_back.Controllers
         {
             try
             {
+                Account outAccount = await _accountService.GetAccount(newPayment.Account_Out_Id, int.Parse(User.FindFirst("userId").Value));
+
+                if (outAccount.Balance < newPayment.Amount) 
+                {
+                    throw new Exception("Недостаточно средств");
+                }
                 int id = await _userService.GetIdByEmail(newPayment.Requisite.Target_email);
                 long AccounInId = await _accountService.GetAccountIdByUserID(id);
                 Operation newOperation = new Operation("Платёж", newPayment.Amount, AccounInId, newPayment.Account_Out_Id, newPayment.Requisite, newPayment.Purpose);
                 var operation = await _accountService.Payment(newOperation);
                 return Ok();
+            }
+            catch
+            {
+                return BadRequest();
+            }
+        }
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteAccount(long id)
+        {
+            try
+            {
+                await _accountService.CloseAccount(id, int.Parse(User.FindFirst("userId").Value));
+                return NoContent();
             }
             catch
             {
