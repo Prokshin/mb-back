@@ -48,6 +48,7 @@ namespace mb_back
             services.AddScoped<UserRequestHandler>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<AuthService>();
+            services.AddScoped<AccountRequestHandler>();
             services.AddScoped<IAccountService, AccountService>();
         }
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

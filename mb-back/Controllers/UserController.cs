@@ -16,7 +16,7 @@ using mb_back.ServicesInterface;
 namespace mb_back.Controllers
 {
     [Route("api/users")]
-    public class UserController : Microsoft.AspNetCore.Mvc.ControllerBase
+    public class UserController : ControllerBase
     {
         private readonly UserRequestHandler _userRequestHandler;
 

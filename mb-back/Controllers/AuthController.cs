@@ -29,31 +29,32 @@ namespace mb_back.Controllers
         [HttpPost("api/auth")]
         public IActionResult Token([FromBody] User user)
         {
-            var identity = _authService.GetIdentity(user.Email, user.Password);
-            if (identity == null)
+            try
             {
-                return BadRequest(new { errorText = "Invalid username or password." });
+                var identity = _authService.GetIdentity(user.Email, user.Password);
+                if (identity == null) throw (new Exception("invalid Email or Password"));
+                var now = DateTime.UtcNow;
+                var jwt = new JwtSecurityToken(
+                        issuer: AuthOptions.ISSUER,
+                        audience: AuthOptions.AUDIENCE,
+                        notBefore: now,
+                        claims: identity.Claims,
+                        expires: now.Add(TimeSpan.FromMinutes(AuthOptions.LIFETIME)),
+                        signingCredentials: new SigningCredentials(AuthOptions.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256));
+                var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
+                var response = new
+                {
+                    access_token = encodedJwt,
+                    expired_to = jwt.ValidTo
+                };
+                return Ok(response);
             }
-
-            var now = DateTime.UtcNow;
-            var jwt = new JwtSecurityToken(
-                    issuer: AuthOptions.ISSUER,
-                    audience: AuthOptions.AUDIENCE,
-                    notBefore: now,
-                    claims: identity.Claims,
-                    expires: now.Add(TimeSpan.FromMinutes(AuthOptions.LIFETIME)),
-                    signingCredentials: new SigningCredentials(AuthOptions.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256));
-            var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
-
-            var response = new
+            catch (Exception e)
             {
-                access_token = encodedJwt,
-                expired_to = jwt.ValidTo
-            };
-
-            return Ok(response);
-        }
-        [Authorize]
+                return BadRequest(e.Message);
+            }
+        }      
+        [Authorize]//при запросе с неверным токеном вернёт 401
         [HttpGet("api/auth/checktoken")]
         public IActionResult CheckToken()
         {

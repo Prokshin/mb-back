@@ -1,4 +1,5 @@
-﻿using mb_back.Models;
+﻿using mb_back.BusinessLogic;
+using mb_back.Models;
 using mb_back.ServicesInterface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -15,19 +16,27 @@ namespace mb_back.Controllers
 
         private readonly IAccountService _accountService;
         private readonly IUserService _userService;
-        public AccountController(IAccountService accountService, IUserService userService)
+        private readonly AccountRequestHandler _accountRequestHandler;
+        public AccountController(IAccountService accountService, IUserService userService, AccountRequestHandler accountRequestHandler)
         {
             _accountService = accountService;
             _userService = userService;
+            _accountRequestHandler = accountRequestHandler;
         }
 
         [HttpGet]
-        public Task<List<Account>> GetAccountsByUserId()
+        public async Task<IActionResult> GetAccountsByUserId()
         {
-
-            Task<List<Account>> res = _accountService.GetAllByUserId(int.Parse(User.FindFirst("userId").Value));
-            Console.Write(res);
-            return res;
+            try
+            {
+                int userId = int.Parse(User.FindFirst("userId").Value);
+                var res = await _accountRequestHandler.GetAccountsByUserId(userId);
+                return Ok(res);
+            }
+            catch(Exception e)
+            {
+                return BadRequest(e.Message);
+            }
         }
 
         [HttpPost]
@@ -35,35 +44,56 @@ namespace mb_back.Controllers
         {
             try
             {
-                long id = await _accountService.CreateAccount(int.Parse(User.FindFirst("userId").Value));
-
-
+                int userId = int.Parse(User.FindFirst("userId").Value);
+                long id = await _accountRequestHandler.CreateAccount(userId);
                 return Ok(id);
             }
-            catch
+            catch(Exception e)
             {
-                return BadRequest();
+                return BadRequest(e.Message);
             }
         }
 
         [HttpGet("{id}")]
-        public Task<Account> GetAccountById(long id)
+        public async Task<IActionResult> GetAccountById(long id)
         {
-            Console.WriteLine(id);
-            Task<Account> res = _accountService.GetAccount(id, int.Parse(User.FindFirst("userId").Value));
-            return res;
+            try
+            {
+                int userId = int.Parse(User.FindFirst("userId").Value);
+                Account res = await _accountRequestHandler.GetAccountById(id, userId);
+                return Ok(res);
+            }
+            catch(Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteAccount(long id)
+        {
+            try
+            {
+                int userId = int.Parse(User.FindFirst("userId").Value);
+                await _accountRequestHandler.DeleteAccount(id, userId);
+                return NoContent();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
         }
         [HttpGet("{id}/operations")]
         public async Task<IActionResult> GetOperations(long id)
         {
             try
             {
-                var operation = await _accountService.GetAllOperationByAccountId(id);
+                var operation = await _accountRequestHandler.GetOperations(id);
                 return Ok(operation);
             }
-            catch
+            catch (Exception e)
             {
-                return BadRequest();
+                return BadRequest(e.Message);
             }
         }
         [HttpPost("{id}/transfer")]
@@ -71,15 +101,9 @@ namespace mb_back.Controllers
         {
             try
             {
-                Account outAccount = await _accountService.GetAccount(newOperation.Account_out_id, int.Parse(User.FindFirst("userId").Value));
-            
-            
-                if (outAccount.Balance < newOperation.Amount)
-                {
-                    throw new Exception("Недостаточно средств");
-                }
-                var operation = await _accountService.Transfer(newOperation);
-                return Ok();
+                int userId = int.Parse(User.FindFirst("userId").Value);
+                var operation = await _accountRequestHandler.AddTransfer(newOperation, userId);
+                return Ok(operation);
             }
             catch(Exception e)
             {
@@ -91,21 +115,22 @@ namespace mb_back.Controllers
         {
             try
             {
-                var operation = await _accountService.Replenishment(newOperation);
-                return Ok();
+                var operation = await _accountRequestHandler.AddReplenishment(newOperation);
+                return Ok(operation);
             }
-            catch 
+            catch (Exception e)
             {
-                return BadRequest();
+                return BadRequest(e.Message);
             }
         }
+
+        //Не очень хорошо понял что из себя должен представлять платёж, пусть пока будет в таком состоянии
         [HttpPost("{id}/payment")]
         public async Task<IActionResult> AddPayment([FromBody] Payment newPayment)
         {
             try
             {
                 Account outAccount = await _accountService.GetAccount(newPayment.Account_Out_Id, int.Parse(User.FindFirst("userId").Value));
-
                 if (outAccount.Balance < newPayment.Amount) 
                 {
                     throw new Exception("Недостаточно средств");
@@ -116,24 +141,12 @@ namespace mb_back.Controllers
                 var operation = await _accountService.Payment(newOperation);
                 return Ok();
             }
-            catch
+            catch(Exception e)
             {
-                return BadRequest();
+                return BadRequest(e.Message);
             }
         }
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteAccount(long id)
-        {
-            try
-            {
-                await _accountService.CloseAccount(id, int.Parse(User.FindFirst("userId").Value));
-                return NoContent();
-            }
-            catch
-            {
-                return BadRequest();
-            }
-        }
+       
 
     }
 }

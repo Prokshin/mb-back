@@ -18,7 +18,7 @@ namespace mb_back.ServicesInterface
         Task<List<Operation>> GetAllOperationByAccountId(long accountId);
         Task<long> GetAccountIdByUserID(int userId);
         Task<long> CloseAccount(long accountId, int userId);
-        Task<int> EqualREquisites(Requisite requisite);
+        Task<int> EqualRequisites(Requisite requisite);
 
         Task<List<Requisite>> GetAllRequisitesByUserId(int id);
         Task<Requisite> GetRequisite(int id);
