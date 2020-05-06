@@ -15,8 +15,6 @@ namespace mb_back.Services
 {
     public class AuthService
     {
-
-
         private readonly IUserService _userService;
 
         public AuthService(IUserService userService)
@@ -31,9 +29,8 @@ namespace mb_back.Services
             {
                 var claims = new List<Claim>
                 {
-                    new Claim(JwtRegisteredClaimNames.Jti, user.Id.ToString()),
-                    //new Claim(ClaimsIdentity.DefaultNameClaimType, user.Email),
-                    new Claim(ClaimsIdentity.DefaultNameClaimType, user.Id.ToString()),
+                    new Claim(ClaimsIdentity.DefaultNameClaimType, user.Email.ToString()),
+                    //Нормально ли таким образом реализовывать запись id в токен?
                     new Claim("userId", user.Id.ToString())
                 };
                 ClaimsIdentity claimsIdentity =
@@ -41,9 +38,6 @@ namespace mb_back.Services
                     ClaimsIdentity.DefaultRoleClaimType);
                 return claimsIdentity;
             }
-
-            // если пользователя не найдено
-            Console.WriteLine("не найден юзер");
             return null;
         }
     }

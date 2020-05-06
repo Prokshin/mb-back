@@ -36,7 +36,6 @@ namespace mb_back.Controllers
             }
 
             var now = DateTime.UtcNow;
-            // создаем JWT-токен
             var jwt = new JwtSecurityToken(
                     issuer: AuthOptions.ISSUER,
                     audience: AuthOptions.AUDIENCE,
@@ -48,7 +47,8 @@ namespace mb_back.Controllers
 
             var response = new
             {
-                access_token = encodedJwt
+                access_token = encodedJwt,
+                expired_to = jwt.ValidTo
             };
 
             return Ok(response);
