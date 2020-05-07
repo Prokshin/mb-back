@@ -18,7 +18,6 @@ namespace mb_back.Models
         public long Account_in_id { get; set; }
         // Id счёта, с которого списывется сумма
         public long Account_out_id { get; set; }
-
         public Requisite Requisite { get; set; }
         //Назначение платежа
         public string Purpose { get; set; }

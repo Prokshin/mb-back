@@ -10,10 +10,11 @@ namespace mb_back.BusinessLogic
     public class AccountRequestHandler
     {
         private readonly IAccountService _accountService;
-
-        public AccountRequestHandler(IAccountService accountService)
+        private readonly IUserService _userService;
+        public AccountRequestHandler(IAccountService accountService, IUserService userService)
         {
             _accountService = accountService;
+            _userService = userService;
         }
 
         public async Task<long> CreateAccount(int userId)
@@ -56,5 +57,36 @@ namespace mb_back.BusinessLogic
                 var operation = await _accountService.Replenishment(newOperation);
                 return operation;
         }
+        public async Task<Operation> AddPayment(Payment newPayment, int userOutId)
+        {
+                Account outAccount = await _accountService.GetAccount(newPayment.Account_Out_Id, userOutId);
+                if (outAccount.Balance < newPayment.Amount)
+                {
+                    throw new Exception("not enough money in the account");
+                }
+                int userInId = await _userService.GetIdByEmail(newPayment.Requisite.Target_email);
+                  long AccounInId = await _accountService.GetAccountIdByUserID(userInId);
+                Operation newOperation = new Operation("Платёж", newPayment.Amount, AccounInId, newPayment.Account_Out_Id, newPayment.Requisite, newPayment.Purpose);
+                var operation = await _accountService.Payment(newOperation);
+                return operation;         
+        }
+        public async Task<List<Requisite>> GetTemplates(int userId)
+        {
+            List<Requisite> requisites = await _accountService.GetAllRequisitesByUserId(userId);
+            return requisites;
+        }
+        public async Task<Requisite> GetTemplate(int id, int userId)
+        {
+            Requisite requisite = await _accountService.GetRequisite(id);
+            return requisite;
+        }
+        public async Task<int> CreateTemplate(Requisite newRequisite, int userId)
+        {
+            int requisiteId = await _accountService.CreateRequisite(newRequisite, userId);
+            return requisiteId;
+        }
+
+
+
     }
 }

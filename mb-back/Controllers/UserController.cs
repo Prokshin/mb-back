@@ -12,6 +12,8 @@ using mb_back.Services;
 using mb_back.BusinessLogic;
 using Microsoft.AspNetCore.Authorization;
 using mb_back.ServicesInterface;
+using Microsoft.AspNetCore.Http;
+using System.IO;
 
 namespace mb_back.Controllers
 {
@@ -70,6 +72,24 @@ namespace mb_back.Controllers
                 return BadRequest(e.Message);
             }
         }
+
+        //TODO: имя связано с датой, проверка уникальности, загрузка ссылки в бд
+        [HttpPatch("current/img")]
+        public async Task<IActionResult> UpdateUserImage(IFormFile uploadedFile)
+        {
+            try
+            {              
+                int userId = int.Parse(User.FindFirst("userId").Value);
+                string url = await _userRequestHandler.UpdateUserImage(uploadedFile, userId);
+                return Ok(url);
+            }
+            catch(Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+
+        }
+
         [Authorize]
         [HttpDelete("current")]
         public async Task<IActionResult> DeleteUser()

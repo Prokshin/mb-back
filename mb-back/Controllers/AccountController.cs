@@ -14,13 +14,10 @@ namespace mb_back.Controllers
     public class AccountController : Microsoft.AspNetCore.Mvc.ControllerBase
     {
 
-        private readonly IAccountService _accountService;
-        private readonly IUserService _userService;
         private readonly AccountRequestHandler _accountRequestHandler;
-        public AccountController(IAccountService accountService, IUserService userService, AccountRequestHandler accountRequestHandler)
+        public AccountController(AccountRequestHandler accountRequestHandler)
         {
-            _accountService = accountService;
-            _userService = userService;
+
             _accountRequestHandler = accountRequestHandler;
         }
 
@@ -124,21 +121,13 @@ namespace mb_back.Controllers
             }
         }
 
-        //Не очень хорошо понял что из себя должен представлять платёж, пусть пока будет в таком состоянии
         [HttpPost("{id}/payment")]
         public async Task<IActionResult> AddPayment([FromBody] Payment newPayment)
         {
             try
             {
-                Account outAccount = await _accountService.GetAccount(newPayment.Account_Out_Id, int.Parse(User.FindFirst("userId").Value));
-                if (outAccount.Balance < newPayment.Amount) 
-                {
-                    throw new Exception("Недостаточно средств");
-                }
-                int id = await _userService.GetIdByEmail(newPayment.Requisite.Target_email);
-                long AccounInId = await _accountService.GetAccountIdByUserID(id);
-                Operation newOperation = new Operation("Платёж", newPayment.Amount, AccounInId, newPayment.Account_Out_Id, newPayment.Requisite, newPayment.Purpose);
-                var operation = await _accountService.Payment(newOperation);
+                int userId = int.Parse(User.FindFirst("userId").Value);
+                var operation = await _accountRequestHandler.AddPayment(newPayment, userId);
                 return Ok();
             }
             catch(Exception e)
@@ -146,7 +135,48 @@ namespace mb_back.Controllers
                 return BadRequest(e.Message);
             }
         }
-       
+        [HttpGet("templates")]
+        public async Task<IActionResult> GetTemplates()
+        {
+            try
+            {
+                int userId = int.Parse(User.FindFirst("userId").Value);
+                var templates = await _accountRequestHandler.GetTemplates(userId);
+                return Ok(templates);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+        [HttpPost("templates")]
+        public async Task<IActionResult> CreateTemplate([FromBody] Requisite newRequisite)
+        {
+            try
+            {
+                int userId = int.Parse(User.FindFirst("userId").Value);
+                var templateId = await _accountRequestHandler.CreateTemplate(newRequisite,userId);
+                return Ok(templateId);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+        [HttpGet("templates/{id}")]
+        public async Task<IActionResult> GetTemplate(int id)
+        {
+            try
+            {
+                int userId = int.Parse(User.FindFirst("userId").Value);
+                var template = await _accountRequestHandler.GetTemplate(id, userId);
+                return Ok(template);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
 
     }
 }

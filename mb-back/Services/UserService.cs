@@ -65,13 +65,27 @@ namespace mb_back.Services
             }
         }
 
+        public async Task<string> UpdateUserImg(string fileName, int userId)
+        {
+            using (var connection = new NpgsqlConnection(ConnectionString))
+            {
+                await connection.QueryAsync("UPDATE Users SET img=@fileName WHERE id=@userId",
+                   new
+                   {
+                       fileName,
+                       userId
+                   });
+                return fileName;
+            }
+        }
+
         public async Task<int> GetIdByEmail(string email)
         {
             using (var connection = new NpgsqlConnection(ConnectionString))
             {
 
                 var res = await connection.QueryFirstOrDefaultAsync<int>("SELECT id FROM Users WHERE email=@email", 
-                    new {email});
+                    new { email });
                 return res;
             }
         }

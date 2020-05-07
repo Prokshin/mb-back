@@ -9,8 +9,24 @@
     <PackageReference Include="BCrypt.Net-Next" Version="4.0.0" />
     <PackageReference Include="Dapper" Version="2.0.35" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.3" />
+    <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="3.1.3" />
     <PackageReference Include="Npgsql" Version="4.1.3.1" />
     <PackageReference Include="System.Data.SqlClient" Version="4.8.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\images\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\static\css\2.b90ce945.chunk.css.map" />
+    <None Include="wwwroot\static\css\main.47fd3550.chunk.css.map" />
+    <None Include="wwwroot\static\js\2.e143cfbc.chunk.js" />
+    <None Include="wwwroot\static\js\2.e143cfbc.chunk.js.map" />
+    <None Include="wwwroot\static\js\main.6cdb528c.chunk.js" />
+    <None Include="wwwroot\static\js\main.6cdb528c.chunk.js.map" />
+    <None Include="wwwroot\static\js\runtime-main.cfae3202.js" />
+    <None Include="wwwroot\static\js\runtime-main.cfae3202.js.map" />
   </ItemGroup>
 
 

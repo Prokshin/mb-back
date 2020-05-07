@@ -99,13 +99,19 @@ namespace mb_back.Services
             newOperation.Date = DateTime.Now;
             Requisite newRequisite = newOperation.Requisite;
             using (var connection = new NpgsqlConnection(ConnectionString))
-            { 
-                int requisiteId = await connection.QueryFirstOrDefaultAsync<int>("INSERT INTO requisites (payment_name, target_name, target_email) values (@payment_name, @target_name, @target_email) Returning (id)", 
-                    new { 
-                        newRequisite.Payment_name, 
-                        newRequisite.Target_name, 
-                        newRequisite.Target_email 
-                    });
+            {
+                int requisiteId = await EqualRequisites(newRequisite);
+                if (requisiteId < 1)
+                {
+                    requisiteId = await connection.QueryFirstOrDefaultAsync<int>("INSERT INTO requisites (payment_name, target_name, target_email) values (@payment_name, @target_name, @target_email) Returning (id)",
+                        new
+                        {
+                            newRequisite.Payment_name,
+                            newRequisite.Target_name,
+                            newRequisite.Target_email
+                        });
+                }
+
                 await connection.QueryAsync("INSERT INTO OPERATIONS (amount, date, account_in_id ,account_out_id, operation_type, requisite_id ) values (@amount, @date, @account_in_id, @account_out_id, 'Платёж', @requisiteId)",
                     new { 
                         newOperation.Amount, 
@@ -185,7 +191,7 @@ namespace mb_back.Services
             using (var connection = new NpgsqlConnection(ConnectionString))
             {
                     var res = await connection.QueryMultipleAsync(
-                    "SELECT * FROM Requisites WHERE user_id = @id", 
+                    "SELECT * FROM Requisites WHERE user_id = 13", 
                     new { id });
                     var requisites = res.Read<Requisite>().ToList();
                     return requisites;
@@ -196,11 +202,26 @@ namespace mb_back.Services
         {
             using (var connection = new NpgsqlConnection(ConnectionString))
             {
-                var res = await connection.QueryMultipleAsync("SELECT * FROM Requisite WHERE id=@id ", 
+                var res = await connection.QueryMultipleAsync("SELECT * FROM Requisites WHERE id=@id ", 
                     new { id });
                 var requisite = res.ReadSingle<Requisite>();
                 return requisite;
             }
+        }
+
+        public async Task<int> CreateRequisite(Requisite newRequisite, int userId)
+        {
+            using (var connection = new NpgsqlConnection(ConnectionString))
+            {
+                int requisiteId = await connection.QueryFirstOrDefaultAsync<int>("INSERT INTO requisites (payment_name, target_name, target_email, user_id) values (@payment_name, @target_name, @target_email, @userId) Returning (id)",
+                    new {
+                         newRequisite.Payment_name,
+                         newRequisite.Target_name,
+                         newRequisite.Target_email,
+                         userId
+                    });
+                return requisiteId;
+            }     
         }
     }
 }

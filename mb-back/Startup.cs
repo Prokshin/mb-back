@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.AspNetCore.SpaServices;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 
@@ -58,7 +59,10 @@ namespace mb_back
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseStaticFiles();
             app.UseRouting();
+     
+          
 
             //На данный момента параметры CORS заданы для упрощения тестирования фронта
             app.UseCors(builder => builder.AllowAnyOrigin()
@@ -72,6 +76,8 @@ namespace mb_back
             {
                 endpoints.MapControllers();
             });
+
+            app.UseSpa(spa => { });
         }
     }
 }
