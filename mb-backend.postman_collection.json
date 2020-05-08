@@ -1,0 +1,627 @@
+{
+	"info": {
+		"_postman_id": "c5f99153-913a-4f77-ba23-2e09d07f8200",
+		"name": "mb-backend",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Пользователь",
+			"item": [
+				{
+					"name": "Вход пользователя",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "6799a4bf-3162-4f16-bc65-70871a54429f",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);\r",
+									"postman.setEnvironmentVariable(\"token\", jsonData.access_token);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"volodya@mail.ru\",\r\n    \"password\": \"12345\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:51870/api/auth",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "51870",
+							"path": [
+								"api",
+								"auth"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Регистрация пользователя",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"prokshin99@yandex.ru\",\r\n    \"name\": \"Илья\",\r\n    \"password\": \"12345\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:51870/api/users",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "51870",
+							"path": [
+								"api",
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Редакирование данных текущего пользователя",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"email\": \"prokshin99@yandex.ru\",\n    \"name\": \"Ilya\",\n\t\"img\":\"https://images.unsplash.com/photo-1560176820-552f9b96e637?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1350&q=80\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:51870/api/users",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "51870",
+							"path": [
+								"api",
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Получение информации о пользователе",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:51870/api/users/current",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "51870",
+							"path": [
+								"api",
+								"users",
+								"current"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "загрузка и измененние изображения пользователя",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "uploadedFile",
+									"type": "file",
+									"src": "/C:/Users/ilp/Downloads/images.jpg"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:51870/api/users/current/img",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "51870",
+							"path": [
+								"api",
+								"users",
+								"current",
+								"img"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Счёт",
+			"item": [
+				{
+					"name": "Операции",
+					"item": [
+						{
+							"name": "Перевод ",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\t\"amount\": 111111100,\n\t\"account_in_id\": 4000000020,\n\t\"account_out_id\": 4000000023\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:51870/api/accounts/4000000020/transfer",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "51870",
+									"path": [
+										"api",
+										"accounts",
+										"4000000020",
+										"transfer"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Платёж",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\t\"amount\": 300,\n\t\"account_out_id\": 4000000023,\n\t\"purpose\": \"Цель платежа\",\n\t\"requisite\":{\n\t\t\"payment_name\": \"gg\",\n\t\t\"target_name\": \"gg\",\n\t\t\"target_email\": \"prokshin99@yandex.ru\"\n\t}\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:51870/api/accounts/4000000023/payment",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "51870",
+									"path": [
+										"api",
+										"accounts",
+										"4000000023",
+										"payment"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Пополнение счёта",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\t\"amount\": 200\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:51870/api/accounts/4000000025/replenishment",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "51870",
+									"path": [
+										"api",
+										"accounts",
+										"4000000025",
+										"replenishment"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Получение информации об операциях счёта",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:51870/api/accounts/4000000023/operations",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "51870",
+									"path": [
+										"api",
+										"accounts",
+										"4000000023",
+										"operations"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "Шаблоны платежа",
+					"item": [
+						{
+							"name": "Получение всех шаблонов платежей пользователя",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoidm9sb2R5YUBtYWlsLnJ1IiwidXNlcklkIjoiMTMiLCJuYmYiOjE1ODg3OTMwNjUsImV4cCI6MTYwMDc5MzA2NSwiaXNzIjoiTXlBdXRoU2VydmVyIiwiYXVkIjoiTXlBdXRoQ2xpZW50In0.PVcHKlrTvyFcymlit2Jg2Rg_-c8Q4gz8k7YtyoodcL4",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:51870/api/accounts/templates",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "51870",
+									"path": [
+										"api",
+										"accounts",
+										"templates"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Получение шаблона платежа пользователя по id",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:51870/api/accounts/templates/15",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "51870",
+									"path": [
+										"api",
+										"accounts",
+										"templates",
+										"15"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Создание шаблона",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\t\n\t\"payment_name\": \"payment name\",\n\t\"target_name\": \"target name\",\n\t\"target_email\": \"prokshin99@yandex.ru\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:51870/api/accounts/templates",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "51870",
+									"path": [
+										"api",
+										"accounts",
+										"templates"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "Получение всех счетов пользователя",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:51870/api/accounts",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "51870",
+							"path": [
+								"api",
+								"accounts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Создание нового счёта",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:51870/api/accounts",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "51870",
+							"path": [
+								"api",
+								"accounts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Получение информации о счёте по id",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:51870/api/accounts/4000000025",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "51870",
+							"path": [
+								"api",
+								"accounts",
+								"4000000025"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Удаление счёта",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:51870/api/accounts/4000000024",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "51870",
+							"path": [
+								"api",
+								"accounts",
+								"4000000024"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		}
+	],
+	"protocolProfileBehavior": {}
+}

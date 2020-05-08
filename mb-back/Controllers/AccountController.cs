@@ -20,7 +20,7 @@ namespace mb_back.Controllers
 
             _accountRequestHandler = accountRequestHandler;
         }
-
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> GetAccountsByUserId()
         {
@@ -30,12 +30,12 @@ namespace mb_back.Controllers
                 var res = await _accountRequestHandler.GetAccountsByUserId(userId);
                 return Ok(res);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 return BadRequest(e.Message);
             }
         }
-
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> CreateAccount()
         {
@@ -45,12 +45,12 @@ namespace mb_back.Controllers
                 long id = await _accountRequestHandler.CreateAccount(userId);
                 return Ok(id);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 return BadRequest(e.Message);
             }
         }
-
+        [Authorize]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetAccountById(long id)
         {
@@ -60,12 +60,12 @@ namespace mb_back.Controllers
                 Account res = await _accountRequestHandler.GetAccountById(id, userId);
                 return Ok(res);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 return BadRequest(e.Message);
             }
         }
-
+        [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAccount(long id)
         {
@@ -80,6 +80,7 @@ namespace mb_back.Controllers
                 return BadRequest(e.Message);
             }
         }
+        [Authorize]
         [HttpGet("{id}/operations")]
         public async Task<IActionResult> GetOperations(long id)
         {
@@ -93,6 +94,7 @@ namespace mb_back.Controllers
                 return BadRequest(e.Message);
             }
         }
+        [Authorize]
         [HttpPost("{id}/transfer")]
         public async Task<IActionResult> AddTransfer([FromBody] Operation newOperation)
         {
@@ -102,16 +104,18 @@ namespace mb_back.Controllers
                 var operation = await _accountRequestHandler.AddTransfer(newOperation, userId);
                 return Ok(operation);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 return BadRequest(e.Message);
             }
         }
+        [Authorize]
         [HttpPost("{id}/replenishment")]
-        public async Task<IActionResult> AddReplenishment([FromBody] Operation newOperation)
+        public async Task<IActionResult> AddReplenishment([FromBody] Operation newOperation, long id)
         {
             try
             {
+                newOperation.Account_in_id = id;
                 var operation = await _accountRequestHandler.AddReplenishment(newOperation);
                 return Ok(operation);
             }
@@ -120,7 +124,7 @@ namespace mb_back.Controllers
                 return BadRequest(e.Message);
             }
         }
-
+        [Authorize]
         [HttpPost("{id}/payment")]
         public async Task<IActionResult> AddPayment([FromBody] Payment newPayment)
         {
@@ -135,6 +139,7 @@ namespace mb_back.Controllers
                 return BadRequest(e.Message);
             }
         }
+        [Authorize]
         [HttpGet("templates")]
         public async Task<IActionResult> GetTemplates()
         {
@@ -149,6 +154,7 @@ namespace mb_back.Controllers
                 return BadRequest(e.Message);
             }
         }
+        [Authorize]
         [HttpPost("templates")]
         public async Task<IActionResult> CreateTemplate([FromBody] Requisite newRequisite)
         {
@@ -163,6 +169,7 @@ namespace mb_back.Controllers
                 return BadRequest(e.Message);
             }
         }
+        [Authorize]
         [HttpGet("templates/{id}")]
         public async Task<IActionResult> GetTemplate(int id)
         {

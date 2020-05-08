@@ -29,7 +29,7 @@ namespace mb_back.Services
             using (var connection = new NpgsqlConnection(ConnectionString))
             {
                 var result = await connection.QueryAsync<User>("SELECT Id, email, password FROM Users");
-                Console.WriteLine(result.ToList()[1].Id);
+                //Console.WriteLine(result.ToList()[1].Id);
                 return result.ToList();
             }
         }
