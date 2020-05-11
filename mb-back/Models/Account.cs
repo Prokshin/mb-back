@@ -9,13 +9,8 @@ namespace mb_back.Models
     {
         public long Id { get; set; }
         public decimal Balance { get; set; }
-        public List<Operation> Operations { get; set; }
 
         public Account() { }
 
-        internal List<Account> ToList()
-        {
-            throw new NotImplementedException();
-        }
     }
 }

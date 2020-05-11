@@ -62,14 +62,16 @@ namespace mb_back.Services
         public async Task<Operation> Transfer(Operation newOperation)
         {
             newOperation.Date = DateTime.Now;
+            newOperation.Operation_type = "перевод";
             using (var connection = new NpgsqlConnection(ConnectionString))
             {
-                await connection.QueryAsync("INSERT INTO OPERATIONS (amount, date, account_in_id ,account_out_id, operation_type ) values (@amount, @date, @account_in_id, @account_out_id, 'Перевод')",
+                await connection.QueryAsync("INSERT INTO OPERATIONS (amount, date, account_in_id ,account_out_id, operation_type ) values (@amount, @date, @account_in_id, @account_out_id, @operation_type)",
                     new { 
                         newOperation.Amount, 
                         newOperation.Date, 
                         newOperation.Account_in_id, 
-                        newOperation.Account_out_id 
+                        newOperation.Account_out_id,
+                        newOperation.Operation_type
                     });
                 await this.ChangeBalance( newOperation.Account_in_id, newOperation.Amount);
                 await this.ChangeBalance(newOperation.Account_out_id, -newOperation.Amount);
@@ -80,9 +82,10 @@ namespace mb_back.Services
         {
 
             newOperation.Date = DateTime.Now;
+            newOperation.Operation_type = "пополнение";
             using (var connection = new NpgsqlConnection(ConnectionString))
             {
-                await connection.QueryAsync("INSERT INTO OPERATIONS (amount, date, account_in_id,operation_type ) values (@amount, @date, @account_in_id, 'пополнение')", 
+                await connection.QueryAsync("INSERT INTO OPERATIONS (amount, date, account_in_id,operation_type ) values (@amount, @date, @account_in_id, @operation_type)", 
                     new { 
                         newOperation.Amount,
                         newOperation.Date,
@@ -97,6 +100,7 @@ namespace mb_back.Services
         {
 
             newOperation.Date = DateTime.Now;
+            newOperation.Operation_type = "Платёж";
             Requisite newRequisite = newOperation.Requisite;
             using (var connection = new NpgsqlConnection(ConnectionString))
             {
@@ -112,12 +116,14 @@ namespace mb_back.Services
                         });
                 }
 
-                await connection.QueryAsync("INSERT INTO OPERATIONS (amount, date, account_in_id ,account_out_id, operation_type, requisite_id ) values (@amount, @date, @account_in_id, @account_out_id, 'Платёж', @requisiteId)",
+                await connection.QueryAsync("INSERT INTO OPERATIONS (amount, date, account_in_id ,account_out_id, operation_type, requisite_id ) values (@amount, @date, @account_in_id, @account_out_id, @operation_type, @purpose, @requisiteId)",
                     new { 
                         newOperation.Amount, 
                         newOperation.Date, 
                         newOperation.Account_in_id, 
                         newOperation.Account_out_id,
+                        newOperation.Operation_type,
+                        newOperation.Purpose,
                         requisiteId 
                     });
                 await this.ChangeBalance(newOperation.Account_in_id, newOperation.Amount);
@@ -137,7 +143,8 @@ namespace mb_back.Services
                 await connection.QueryAsync("UPDATE Accounts SET  balance = balance + @amount WHERE id = @accountId", 
                     new { 
                         amount, 
-                        accountId });
+                        accountId 
+                    });
                 return amount;
             }
         }
@@ -148,7 +155,7 @@ namespace mb_back.Services
             {
 
                 var res = await connection.QueryMultipleAsync("SELECT * FROM Operations WHERE account_out_id = @accountId OR account_in_id = @accountId", 
-                    new {  accountId });
+                    new { accountId });
                 var operations = res.Read<Operation>().ToList();
                 return operations;
             }
