@@ -198,7 +198,7 @@ namespace mb_back.Services
             using (var connection = new NpgsqlConnection(ConnectionString))
             {
                     var res = await connection.QueryMultipleAsync(
-                    "SELECT * FROM Requisites WHERE user_id = 13", 
+                    "SELECT * FROM Requisites WHERE user_id = @id", 
                     new { id });
                     var requisites = res.Read<Requisite>().ToList();
                     return requisites;
