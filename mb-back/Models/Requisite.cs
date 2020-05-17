@@ -7,6 +7,7 @@ namespace mb_back.Models
 {
     public class Requisite
     {
+        public int Id { get; set; }
         public string Payment_name { get; set;}
         public string Target_name { get; set; }
         public string Target_email { get; set; }

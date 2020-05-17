@@ -73,7 +73,7 @@ namespace mb_back.Controllers
             }
         }
 
-        //TODO: имя связано с датой, проверка уникальности, загрузка ссылки в бд
+ 
         [HttpPatch("current/img")]
         public async Task<IActionResult> UpdateUserImage(IFormFile uploadedFile)
         {
@@ -87,7 +87,6 @@ namespace mb_back.Controllers
             {
                 return BadRequest(e.Message);
             }
-
         }
 
         [Authorize]

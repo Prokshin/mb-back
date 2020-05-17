@@ -116,7 +116,7 @@ namespace mb_back.Services
                         });
                 }
 
-                await connection.QueryAsync("INSERT INTO OPERATIONS (amount, date, account_in_id ,account_out_id, operation_type, requisite_id ) values (@amount, @date, @account_in_id, @account_out_id, @operation_type, @purpose, @requisiteId)",
+                await connection.QueryAsync("INSERT INTO OPERATIONS (amount, date, account_in_id ,account_out_id, operation_type,  requisite_id ) values (@amount, @date, @account_in_id, @account_out_id, @operation_type, @requisiteId)",
                     new { 
                         newOperation.Amount, 
                         newOperation.Date, 
@@ -127,7 +127,7 @@ namespace mb_back.Services
                         requisiteId 
                     });
                 await this.ChangeBalance(newOperation.Account_in_id, newOperation.Amount);
-                await this.ChangeBalance(newOperation.Account_in_id, -newOperation.Amount);
+                await this.ChangeBalance(newOperation.Account_out_id, -newOperation.Amount);
            
         
                

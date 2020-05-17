@@ -45,7 +45,7 @@ namespace mb_back.BusinessLogic
         public async Task<Operation> AddTransfer( Operation newOperation, int userId)
         {
                 Account outAccount = await _accountService.GetAccount(newOperation.Account_out_id, userId);
-                if (outAccount.Balance < newOperation.Amount)
+                if (outAccount.Balance < newOperation.Amount && newOperation.Amount > 0)
                 {
                     throw new Exception("not enough money in the account");
                 }
@@ -60,7 +60,7 @@ namespace mb_back.BusinessLogic
         public async Task<Operation> AddPayment(Payment newPayment, int userOutId)
         {
                 Account outAccount = await _accountService.GetAccount(newPayment.Account_Out_Id, userOutId);
-                if (outAccount.Balance < newPayment.Amount)
+                if (outAccount.Balance < newPayment.Amount && newPayment.Amount > 0)
                 {
                     throw new Exception("not enough money in the account");
                 }
