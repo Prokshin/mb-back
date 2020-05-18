@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using mb_back.Models;
 using mb_back.ServicesInterface;
+using Microsoft.AspNetCore.Http.Connections;
 using Npgsql;
 using System;
 using System.Collections.Generic;
@@ -65,35 +66,65 @@ namespace mb_back.Services
             newOperation.Operation_type = "перевод";
             using (var connection = new NpgsqlConnection(ConnectionString))
             {
-                await connection.QueryAsync("INSERT INTO OPERATIONS (amount, date, account_in_id ,account_out_id, operation_type ) values (@amount, @date, @account_in_id, @account_out_id, @operation_type)",
-                    new { 
-                        newOperation.Amount, 
-                        newOperation.Date, 
-                        newOperation.Account_in_id, 
-                        newOperation.Account_out_id,
-                        newOperation.Operation_type
-                    });
-                await this.ChangeBalance( newOperation.Account_in_id, newOperation.Amount);
-                await this.ChangeBalance(newOperation.Account_out_id, -newOperation.Amount);
+                connection.Open();
+                using (var transaction = connection.BeginTransaction())
+                {
+                    try
+                    {
+                        await connection.ExecuteAsync("INSERT INTO OPERATIONS (amount, date, account_in_id ,account_out_id, operation_type ) values (@amount, @date, @account_in_id, @account_out_id, @operation_type)",
+                                  new
+                                  {
+                                      newOperation.Amount,
+                                      newOperation.Date,
+                                      newOperation.Account_in_id,
+                                      newOperation.Account_out_id,
+                                      newOperation.Operation_type
+                                  });
+
+                        await this.ChangeBalance(newOperation.Account_in_id, newOperation.Amount, transaction);
+                        await this.ChangeBalance(newOperation.Account_out_id, -newOperation.Amount, transaction);
+                        transaction.Commit();
+                    }
+                    catch
+                    {                        
+                        transaction.Rollback();
+                        throw new Exception("Ошибка при переводе");
+                    }
+                }
                 return newOperation;
             }
         }
         public async Task<Operation> Replenishment(Operation newOperation)
         {
-
             newOperation.Date = DateTime.Now;
             newOperation.Operation_type = "пополнение";
             using (var connection = new NpgsqlConnection(ConnectionString))
             {
-                await connection.QueryAsync("INSERT INTO OPERATIONS (amount, date, account_in_id,operation_type ) values (@amount, @date, @account_in_id, @operation_type)", 
-                    new { 
-                        newOperation.Amount,
-                        newOperation.Date,
-                        newOperation.Account_in_id,
-                        newOperation.Operation_type 
-                    });
-                await this.ChangeBalance(newOperation.Account_in_id, newOperation.Amount);
-                return newOperation;
+
+                connection.Open();
+                using (var transaction = connection.BeginTransaction())
+                {
+                    try
+                    {
+                        await connection.ExecuteAsync("INSERT INTO OPERATIONS (amount, date, account_in_id,operation_type ) values (@amount, @date, @account_in_id, @operation_type)",
+                        new
+                        {
+                            newOperation.Amount,
+                            newOperation.Date,
+                            newOperation.Account_in_id,
+                            newOperation.Operation_type
+                        }, transaction: transaction);
+                        await this.ChangeBalance(newOperation.Account_in_id, newOperation.Amount, transaction);
+                        transaction.Commit();
+                        
+                    }
+                    catch {
+                        transaction.Rollback();
+                        throw new Exception("Ошибка при пополнении счёта");
+                    }
+                    return newOperation;
+                }
+
             }
         }
         public async Task<Operation> Payment(Operation newOperation)
@@ -104,38 +135,49 @@ namespace mb_back.Services
             Requisite newRequisite = newOperation.Requisite;
             using (var connection = new NpgsqlConnection(ConnectionString))
             {
-                int requisiteId = await EqualRequisites(newRequisite);
-                if (requisiteId < 1)
+                connection.Open();
+                using (var transaction = connection.BeginTransaction())
                 {
-                    requisiteId = await connection.QueryFirstOrDefaultAsync<int>("INSERT INTO requisites (payment_name, target_name, target_email) values (@payment_name, @target_name, @target_email) Returning (id)",
-                        new
+                    try
+                    {
+                        int requisiteId = await EqualRequisites(newRequisite);
+                        if (requisiteId < 1)
                         {
-                            newRequisite.Payment_name,
-                            newRequisite.Target_name,
-                            newRequisite.Target_email
-                        });
+                            requisiteId = await connection.QueryFirstOrDefaultAsync<int>("INSERT INTO requisites (payment_name, target_name, target_email) values (@payment_name, @target_name, @target_email) Returning (id)",
+                                new
+                                {
+                                    newRequisite.Payment_name,
+                                    newRequisite.Target_name,
+                                    newRequisite.Target_email
+                                },transaction);
+                        }
+
+                        await connection.ExecuteAsync("INSERT INTO OPERATIONS (amount, date, account_in_id ,account_out_id, operation_type,  requisite_id ) values (@amount, @date, @account_in_id, @account_out_id, @operation_type, @requisiteId)",
+                            new { 
+                                newOperation.Amount, 
+                                newOperation.Date, 
+                                newOperation.Account_in_id, 
+                                newOperation.Account_out_id,
+                                newOperation.Operation_type,
+                                newOperation.Purpose,
+                                requisiteId
+                            },transaction);
+
+                        await this.ChangeBalance(newOperation.Account_in_id, newOperation.Amount,transaction);
+                        await this.ChangeBalance(newOperation.Account_out_id, -newOperation.Amount, transaction);
+
+                        transaction.Commit();
+                    }
+                    catch
+                    {
+                        transaction.Rollback();
+                        throw new Exception("Ошибка при выполнении платежа");
+                    }
+                    return newOperation;
                 }
-
-                await connection.QueryAsync("INSERT INTO OPERATIONS (amount, date, account_in_id ,account_out_id, operation_type,  requisite_id ) values (@amount, @date, @account_in_id, @account_out_id, @operation_type, @requisiteId)",
-                    new { 
-                        newOperation.Amount, 
-                        newOperation.Date, 
-                        newOperation.Account_in_id, 
-                        newOperation.Account_out_id,
-                        newOperation.Operation_type,
-                        newOperation.Purpose,
-                        requisiteId 
-                    });
-                await this.ChangeBalance(newOperation.Account_in_id, newOperation.Amount);
-                await this.ChangeBalance(newOperation.Account_out_id, -newOperation.Amount);
-           
-        
-               
-                return newOperation;
-
             }
         }
-        public async Task<decimal> ChangeBalance(long accountId, decimal amount)
+        public async Task<decimal> ChangeBalance(long accountId, decimal amount, NpgsqlTransaction transaction)
         {
             using (var connection = new NpgsqlConnection(ConnectionString))
 
@@ -144,7 +186,7 @@ namespace mb_back.Services
                     new { 
                         amount, 
                         accountId 
-                    });
+                    },transaction: transaction);
                 return amount;
             }
         }

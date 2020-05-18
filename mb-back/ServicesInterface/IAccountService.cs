@@ -14,7 +14,6 @@ namespace mb_back.ServicesInterface
         Task<Operation> Transfer(Operation newOperation);
         Task<Operation> Replenishment(Operation newOperation);
         Task<Operation> Payment(Operation newOperation);
-        Task<decimal> ChangeBalance(long accountId, decimal amount);
         Task<List<Operation>> GetAllOperationByAccountId(long accountId);
         Task<long> GetAccountIdByUserID(int userId);
         Task<long> CloseAccount(long accountId, int userId);

@@ -30,7 +30,6 @@ namespace mb_back.Services
                 var claims = new List<Claim>
                 {
                     new Claim(ClaimsIdentity.DefaultNameClaimType, user.Email.ToString()),
-                    //Нормально ли таким образом реализовывать запись id в токен?
                     new Claim("userId", user.Id.ToString())
                 };
                 ClaimsIdentity claimsIdentity =
