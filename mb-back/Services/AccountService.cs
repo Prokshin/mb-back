@@ -18,12 +18,12 @@ namespace mb_back.Services
         {
             using (var connection = new NpgsqlConnection(ConnectionString))
             {
-                var res =  await connection.QueryMultipleAsync(
+                var accounts =  await connection.QueryAsync<Account>(
                     "SELECT * FROM Accounts WHERE user_id = @id And is_close=false", 
                     new { id });
-                var accounts = res.Read<Account>().ToList();
 
-                return accounts;
+                var accountList = accounts.ToList();
+                return accountList;
             }
         }
 
@@ -31,9 +31,8 @@ namespace mb_back.Services
         {
             using (var connection = new NpgsqlConnection(ConnectionString))
             {
-                var res = await connection.QueryMultipleAsync("INSERT INTO Accounts (user_id) VALUES (@Userid) Returning (id)", 
+                var id = await connection.QueryFirstOrDefaultAsync<long>("INSERT INTO Accounts (user_id) VALUES (@Userid) Returning (id)", 
                     new { UserId });
-                var id = res.ReadSingle<long>();
                 return id;
             }
         }
@@ -41,12 +40,11 @@ namespace mb_back.Services
         {
             using (var connection = new NpgsqlConnection(ConnectionString))
             {
-                var res = await connection.QueryMultipleAsync("SELECT * FROM Accounts WHERE id=@accountID AND user_id=@userId AND is_close=false", 
+                var account = await connection.QueryFirstOrDefaultAsync<Account>("SELECT * FROM Accounts WHERE id=@accountID AND user_id=@userId AND is_close=false", 
                     new { 
                         accountId, 
                         userId 
                     });
-                var account = res.ReadSingle<Account>();
                 return account;
             }
         }
@@ -55,9 +53,9 @@ namespace mb_back.Services
         {
             using (var connection = new NpgsqlConnection(ConnectionString))
             {
-                var res = await connection.QueryFirstOrDefaultAsync<long>("SELECT id FROM Accounts WHERE user_id=@userId and is_close=false", 
+                var accountId = await connection.QueryFirstOrDefaultAsync<long>("SELECT id FROM Accounts WHERE user_id=@userId and is_close=false", 
                     new { userId });
-                return res;
+                return accountId;
             }
         }
         public async Task<Operation> Transfer(Operation newOperation)
@@ -196,10 +194,10 @@ namespace mb_back.Services
             using (var connection = new NpgsqlConnection(ConnectionString))
             {
 
-                var res = await connection.QueryMultipleAsync("SELECT * FROM Operations WHERE account_out_id = @accountId OR account_in_id = @accountId", 
+                var operations = await connection.QueryAsync<Operation>("SELECT * FROM Operations WHERE account_out_id = @accountId OR account_in_id = @accountId", 
                     new { accountId });
-                var operations = res.Read<Operation>().ToList();
-                return operations;
+                var operationsList = operations.ToList();
+                return operationsList;
             }
         }
 
@@ -207,7 +205,7 @@ namespace mb_back.Services
         {
             using (var connection = new NpgsqlConnection(ConnectionString))
             {
-                await connection.QueryAsync("UPDATE Accounts SET is_close=true WHERE id = @accountId", 
+                await connection.ExecuteAsync("UPDATE Accounts SET is_close=true WHERE id = @accountId", 
                     new {accountId });
                 return accountId;
             }
@@ -239,11 +237,11 @@ namespace mb_back.Services
         {
             using (var connection = new NpgsqlConnection(ConnectionString))
             {
-                    var res = await connection.QueryMultipleAsync(
+                    var requisites = await connection.QueryAsync<Requisite>(
                     "SELECT * FROM Requisites WHERE user_id = @id", 
                     new { id });
-                    var requisites = res.Read<Requisite>().ToList();
-                    return requisites;
+                    var requisitesList = requisites.ToList();
+                    return requisitesList;
             }
         }
 
@@ -251,9 +249,8 @@ namespace mb_back.Services
         {
             using (var connection = new NpgsqlConnection(ConnectionString))
             {
-                var res = await connection.QueryMultipleAsync("SELECT * FROM Requisites WHERE id=@id ", 
+                var requisite = await connection.QueryFirstOrDefaultAsync<Requisite>("SELECT * FROM Requisites WHERE id=@id ", 
                     new { id });
-                var requisite = res.ReadSingle<Requisite>();
                 return requisite;
             }
         }
