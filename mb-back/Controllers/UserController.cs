@@ -33,7 +33,7 @@ namespace mb_back.Controllers
         {
             try
             {
-                var user = await _userRequestHandler.GetUserById(int.Parse(User.FindFirst("userId").Value));
+                UserInfo user = await _userRequestHandler.GetUserById(int.Parse(User.FindFirst("userId").Value));
                 return Ok(user);
             }
             catch(Exception e)
@@ -43,7 +43,7 @@ namespace mb_back.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateUser([FromBody] User newUser)
+        public async Task<IActionResult> CreateUser([FromBody] UserRegistration newUser)
         {
             try
             {
@@ -59,7 +59,7 @@ namespace mb_back.Controllers
         }
         [Authorize]
         [HttpPut]
-        public async Task<IActionResult> UpdateUser([FromBody] User updatedUser)
+        public async Task<IActionResult> UpdateUser([FromBody] UserInfo updatedUser)
         {
             try
             {

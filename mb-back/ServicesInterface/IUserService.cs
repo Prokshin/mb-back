@@ -8,10 +8,10 @@ namespace mb_back.ServicesInterface
 {
     public interface IUserService
     {
-        Task<User> GetById(int id);
+        Task<UserInfo> GetById(int id);
         Task<List<User>> GetAllUsers();
-        Task<User> CreateUser(User newUser);
-        Task<User> UpdateUser(User updatedUser);
+        Task<UserRegistration> CreateUser(UserRegistration newUser);
+        Task<UserInfo> UpdateUser(UserInfo updatedUser, int userId);
         Task<int> GetIdByEmail(string email);
         Task<int> DeleteUser(int userId);
 

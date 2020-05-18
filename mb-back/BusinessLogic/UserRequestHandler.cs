@@ -19,18 +19,17 @@ namespace mb_back.BusinessLogic
             _userService = userServices;
         }
 
-        public async Task<User> GetUserById(int id)
+        public async Task<UserInfo> GetUserById(int id)
         {
             return await _userService.GetById(id);
         }
-        public async Task<User> CreateUser(User newUser)
+        public async Task<UserRegistration> CreateUser(UserRegistration newUser)
         {
             return await _userService.CreateUser(newUser);
         }
-        public async Task<User> UpdateUser(User updatedUser, int userId)
+        public async Task<UserInfo> UpdateUser(UserInfo updatedUser, int userId)
         {
-            updatedUser.Id = userId;
-            return await _userService.UpdateUser(updatedUser);
+            return await _userService.UpdateUser(updatedUser, userId);
         }
         public async Task<int> DeleteUser(int userId)
         {

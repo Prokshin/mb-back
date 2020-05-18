@@ -27,7 +27,7 @@ namespace mb_back.Controllers
         }
 
         [HttpPost("api/auth")]
-        public IActionResult Token([FromBody] User user)
+        public IActionResult Token([FromBody] UserLogin user)
         {
             try
             {
