@@ -2,6 +2,8 @@
 using mb_back.Models;
 using mb_back.ServicesInterface;
 using Microsoft.AspNetCore.Http.Connections;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Npgsql;
 using System;
 using System.Collections.Generic;
@@ -11,9 +13,14 @@ using System.Threading.Tasks;
 namespace mb_back.Services
 {
     public class AccountService:IAccountService
+
     {
-        private const string ConnectionString =
-           "server=localhost;database=mb;userid=postgres;password=password;Pooling=false";
+        private string ConnectionString;
+        public AccountService(IOptions<ConnectionStrings> connectionString)
+        {
+            this.ConnectionString = connectionString.Value.defaultString; 
+        }
+     
         public async Task<List<Account>> GetAllByUserId(int id)
         {
             using (var connection = new NpgsqlConnection(ConnectionString))

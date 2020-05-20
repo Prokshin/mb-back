@@ -6,14 +6,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using mb_back.ServicesInterface;
+using Microsoft.Extensions.Options;
 
 namespace mb_back.Services
 {
     public class UserService : IUserService
     {
-        private const string ConnectionString =
-            "server=localhost;database=mb;userid=postgres;password=password;Pooling=false";
 
+        private string ConnectionString;
+        public UserService(IOptions<ConnectionStrings> connectionString)
+        {
+            this.ConnectionString = connectionString.Value.defaultString;
+        }
         public async Task<UserInfo> GetById(int id)
         {
             using (var connection = new NpgsqlConnection(ConnectionString))
