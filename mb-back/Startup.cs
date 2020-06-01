@@ -15,6 +15,9 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.SpaServices;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using System.Net.WebSockets;
+using System.Threading;
+using Microsoft.AspNetCore.Http;
 
 namespace mb_back
 {
@@ -62,6 +65,15 @@ namespace mb_back
                 app.UseDeveloperExceptionPage();
             }
 
+            var webSocketOptions = new WebSocketOptions()
+            {
+                KeepAliveInterval = TimeSpan.FromSeconds(120),
+                ReceiveBufferSize = 4 * 1024
+            };
+
+            app.UseWebSockets(webSocketOptions);
+
+
             app.UseStaticFiles();
             app.UseRouting();
      
@@ -82,5 +94,6 @@ namespace mb_back
 
             app.UseSpa(spa => { });
         }
+ 
     }
 }

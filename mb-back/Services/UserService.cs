@@ -23,7 +23,7 @@ namespace mb_back.Services
             using (var connection = new NpgsqlConnection(ConnectionString))
             {
                 var user =  await connection.QuerySingleAsync<UserInfo>(
-                    "SELECT email, name, img FROM Users WHERE Id=@id",
+                    "SELECT id, email, name, img FROM Users WHERE Id=@id",
                     new { id });
                 return user;
             }

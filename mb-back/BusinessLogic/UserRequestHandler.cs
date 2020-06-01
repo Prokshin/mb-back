@@ -39,7 +39,7 @@ namespace mb_back.BusinessLogic
         public async Task<string> UpdateUserImage(IFormFile uploadedFile, int userId)
         {
 
-            if (uploadedFile.Length > 2097152) throw new Exception("file size exceeded");
+            if (uploadedFile.Length > 5242880) throw new Exception("file size exceeded");
             string extension =  System.IO.Path.GetExtension(uploadedFile.FileName).Substring(1);
             if (extension == "jpg" || extension == "png")
             {
@@ -50,7 +50,7 @@ namespace mb_back.BusinessLogic
                     await uploadedFile.CopyToAsync(stream);
                 }
 
-                string imageName = await _userService.UpdateUserImg("http://localhost:51870/images/" + filePath, userId);
+                string imageName = await _userService.UpdateUserImg("http://192.168.1.55:51870/images/" + filePath, userId);
 
                 return imageName;
             }
